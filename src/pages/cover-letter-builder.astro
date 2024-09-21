@@ -1,0 +1,100 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="AI Cover Letter Optimizer"
+  description="Optimize your cover letter for a specific job description."
+>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">AI Cover Letter Optimizer</h1>
+    <p class="mb-4 text-custom-gray">
+      Paste your cover letter and the job description below to analyze and optimize your cover letter.
+    </p>
+
+    <!-- Input Fields -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="cover-letter" class="block text-sm font-medium text-custom-offwhite">Cover Letter</label>
+        <textarea
+          id="cover-letter"
+          name="cover-letter"
+          rows="10"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
+      </div>
+      <div>
+        <label for="job-description" class="block text-sm font-medium text-custom-offwhite">Job Description</label>
+        <textarea
+          id="job-description"
+          name="job-description"
+          rows="10"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Metrics Widgets -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-custom-offwhite">Metrics</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Flesch Kincaid Reading Level -->
+        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
+            <h3 class="text-lg font-semibold text-custom-offwhite">Flesch-Kincaid Readability</h3>
+            <div id="flesch-kincaid" class="mt-2 text-custom-gray">-</div>
+          </div>
+        <!-- Active Voice Usage -->
+        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
+          <h3 class="text-lg font-semibold text-custom-offwhite">Active Voice Usage</h3>
+          <p id="active-voice" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
+        </div>
+        <!-- Personalization Score -->
+        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
+          <h3 class="text-lg font-semibold text-custom-offwhite">Personalization</h3>
+          <p id="personalization" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
+        </div>
+        <!-- Grammar and Spelling Errors -->
+        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
+          <h3 class="text-lg font-semibold text-custom-offwhite">Grammar and Spelling Errors</h3>
+          <p id="grammar-errors" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { calculateActiveVoicePercentage, calculatePersonalization, calculateGrammarErrors } from '/src/scripts/utils/metrics.js';
+    import { calculateFleschKincaidGradeLevel } from '/src/scripts/utils/fleschKincaid.js'; 
+    const coverLetterTextarea = document.getElementById('cover-letter');
+    const jobDescriptionTextarea = document.getElementById('job-description');
+
+    coverLetterTextarea.addEventListener('input', updateMetrics);
+    jobDescriptionTextarea.addEventListener('input', updateMetrics);
+
+    async function updateMetrics() {
+      const coverLetterText = coverLetterTextarea.value;
+      const jobDescriptionText = jobDescriptionTextarea.value;
+
+    // Calculate Flesch Kincaid Reading Level
+    const fleschKincaidResult = calculateFleschKincaidGradeLevel(coverLetterText);
+    const fleschKincaidElement = document.getElementById('flesch-kincaid');
+    fleschKincaidElement.innerHTML = `
+    <span class="text-2xl font-bold">${fleschKincaidResult.score.toFixed(1)}</span>
+    <br>
+    <span class="text-sm">${fleschKincaidResult.description}</span>
+    `;
+
+      // Calculate Active Voice Usage
+      const activeVoicePercentage = await calculateActiveVoicePercentage(coverLetterText);
+      document.getElementById('active-voice').textContent = activeVoicePercentage.toFixed(2) + '%';
+
+      // Calculate Personalization Score
+      const personalizationScore = calculatePersonalization(coverLetterText, jobDescriptionText);
+      document.getElementById('personalization').textContent = personalizationScore.toFixed(2) + '%';
+
+      // Calculate Grammar and Spelling Errors
+      const grammarErrors = await calculateGrammarErrors(coverLetterText);
+      document.getElementById('grammar-errors').textContent = grammarErrors;
+    }
+  </script>
+</Layout>
