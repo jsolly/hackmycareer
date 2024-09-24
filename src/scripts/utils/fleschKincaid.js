@@ -1,7 +1,7 @@
 /**
  * Calculates the Flesch-Kincaid Grade Level for the given text and returns a human-readable description.
  * @param {string} text - The input text to analyze.
- * @returns {Object} An object containing the score and human-readable description.
+ * @returns {score: number, description: string} An object containing the Flesch-Kincaid score and a description.
  */
 export function calculateFleschKincaidGradeLevel(text) {
 	const cleanText = text.replace(/[^\w\s]/g, "").toLowerCase();
@@ -47,4 +47,38 @@ export function calculateFleschKincaidGradeLevel(text) {
 		score: Number.parseFloat(score.toFixed(1)),
 		description: getReadabilityDescription(score),
 	};
+}
+
+/**
+ * Returns the top 10 sentences with the highest Flesch-Kincaid reading level as <li> tags with Tailwind classes applied.
+ * @param {string} text - The input text to analyze.
+ * @returns {Array<string>} An array of <li> strings with the appropriate Tailwind classes applied.
+ */
+export function getTop10SentencesByReadingLevel(text) {
+	const sentences = text.split(/[.!?]+/).filter(Boolean);
+
+	// Map Flesch-Kincaid score to Tailwind class
+	function getTailwindClass(score) {
+		if (score >= 40) return "text-green-400"; // Very easy
+		if (score < 50) return "text-orange-400"; // Difficult
+		return "text-red-400";
+	}
+
+	// Create an array of sentences with their corresponding Flesch-Kincaid score
+	const sentenceScores = sentences.map((sentence) => {
+		const { score } = calculateFleschKincaidGradeLevel(sentence);
+		return { sentence: sentence.trim(), score };
+	});
+
+	// Sort sentences by score in descending order
+	const sortedSentences = sentenceScores.sort((a, b) => a.score - b.score);
+
+	// Map sorted sentences to <li> elements with the appropriate Tailwind class and score
+	const sortedSentenceElements = sortedSentences.map(({ sentence, score }) => {
+		const className = getTailwindClass(score);
+		return `<li class="${className}">${sentence} (${score.toFixed(1)})</li>`;
+	});
+
+	// Return the top 10 sentences or fewer if there are less than 10
+	return sortedSentenceElements.slice(0, 10);
 }

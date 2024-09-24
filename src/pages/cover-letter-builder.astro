@@ -40,31 +40,41 @@ import Layout from "../layouts/Layout.astro";
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Flesch Kincaid Reading Level -->
         <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
-            <h3 class="text-lg font-semibold text-custom-offwhite">Flesch-Kincaid Readability</h3>
-            <div id="flesch-kincaid" class="mt-2 text-custom-gray">-</div>
-          </div>
-        <!-- Active Voice Usage -->
-        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
-          <h3 class="text-lg font-semibold text-custom-offwhite">Active Voice Usage</h3>
-          <p id="active-voice" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
+          <h3 class="text-lg font-semibold text-custom-offwhite">Overall Flesch-Kincaid Readability</h3>
+          <div id="flesch-kincaid" class="mt-2 text-2xl font-bold text-custom-gray">-</div>
         </div>
-        <!-- Personalization Score -->
+
+        <!-- Top 10 Sentences by Reading Level -->
         <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
-          <h3 class="text-lg font-semibold text-custom-offwhite">Personalization</h3>
-          <p id="personalization" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
+          <h3 class="text-lg font-semibold text-custom-offwhite">Top 10 Difficult Sentences (Reading Level)</h3>
+          <ol id="top-sentences" class="mt-2 text-custom-gray list-decimal pl-4"></ol>
         </div>
-        <!-- Grammar and Spelling Errors -->
-        <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
-          <h3 class="text-lg font-semibold text-custom-offwhite">Grammar and Spelling Errors</h3>
-          <p id="grammar-errors" class="mt-2 text-2xl font-bold text-custom-gray">-</p>
-        </div>
+      </div>
+    </div>
+
+    <!-- Flesch-Kincaid Score Scale -->
+    <div class="mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-custom-offwhite">Readability Scale</h2>
+      <div class="relative h-4 w-full bg-gray-300 rounded-full overflow-hidden">
+        <!-- 5th grade (Very easy) -->
+        <div class="absolute left-0 h-full bg-green-400" style="width: 70%;"></div>
+        <!-- College (Difficult) -->
+        <div class="absolute left-[70%] h-full bg-yellow-400" style="width: 20%;"></div>
+        <!-- College Graduate to Professional (Very Difficult) -->
+        <div class="absolute left-[90%] h-full bg-red-400" style="width: 10%;"></div>
+      </div>
+      <div class="flex justify-between text-sm text-custom-gray mt-2">
+        <span>90-100 (Very Easy)</span>
+        <span>70-89 (Easy)</span>
+        <span>50-69 (Plain English)</span>
+        <span>30-49 (Difficult)</span>
+        <span>0-29 (Very Difficult)</span>
       </div>
     </div>
   </div>
 
   <script type="module">
-    import { calculateActiveVoicePercentage, calculatePersonalization, calculateGrammarErrors } from '/src/scripts/utils/metrics.js';
-    import { calculateFleschKincaidGradeLevel } from '/src/scripts/utils/fleschKincaid.js'; 
+    import { calculateFleschKincaidGradeLevel, getTop10SentencesByReadingLevel } from '/src/scripts/utils/fleschKincaid.js'; 
     const coverLetterTextarea = document.getElementById('cover-letter');
     const jobDescriptionTextarea = document.getElementById('job-description');
 
@@ -75,26 +85,20 @@ import Layout from "../layouts/Layout.astro";
       const coverLetterText = coverLetterTextarea.value;
       const jobDescriptionText = jobDescriptionTextarea.value;
 
-    // Calculate Flesch Kincaid Reading Level
-    const fleschKincaidResult = calculateFleschKincaidGradeLevel(coverLetterText);
-    const fleschKincaidElement = document.getElementById('flesch-kincaid');
-    fleschKincaidElement.innerHTML = `
-    <span class="text-2xl font-bold">${fleschKincaidResult.score.toFixed(1)}</span>
-    <br>
-    <span class="text-sm">${fleschKincaidResult.description}</span>
-    `;
+      // Calculate Flesch Kincaid Reading Level
+      const fleschKincaidResult = calculateFleschKincaidGradeLevel(coverLetterText);
+      const fleschKincaidElement = document.getElementById('flesch-kincaid');
+      fleschKincaidElement.innerHTML = `
+        <span class="text-2xl font-bold">${fleschKincaidResult.score.toFixed(1)}</span>
+        <br>
+        <span class="text-sm">${fleschKincaidResult.description}</span>
+      `;
 
-      // Calculate Active Voice Usage
-      const activeVoicePercentage = await calculateActiveVoicePercentage(coverLetterText);
-      document.getElementById('active-voice').textContent = activeVoicePercentage.toFixed(2) + '%';
+      // Get Top 10 Sentences by Reading Level
+      const topSentences = getTop10SentencesByReadingLevel(coverLetterText);
 
-      // Calculate Personalization Score
-      const personalizationScore = calculatePersonalization(coverLetterText, jobDescriptionText);
-      document.getElementById('personalization').textContent = personalizationScore.toFixed(2) + '%';
-
-      // Calculate Grammar and Spelling Errors
-      const grammarErrors = await calculateGrammarErrors(coverLetterText);
-      document.getElementById('grammar-errors').textContent = grammarErrors;
+      // Inject the generated <li> elements into the <ol> container
+      document.getElementById('top-sentences').innerHTML = topSentences.join('');
     }
   </script>
 </Layout>
