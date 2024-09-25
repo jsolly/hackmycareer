@@ -45,27 +45,45 @@ export function countPersonalPronouns(text) {
 	return pronounCount;
 }
 
-export async function analyzeFirstSentence(
-	coverLetterText,
-	jobDescriptionText,
-) {
-	const generator = await pipeline(
-		"text2text-generation",
-		"Xenova/LaMini-Flan-T5-783M",
-	);
+let generator;
 
-	const firstSentence = `${coverLetterText.split(". ")[0]}.`;
+async function getGenerator() {
+	if (!generator) {
+		generator = await pipeline(
+			"text2text-generation",
+			"Xenova/LaMini-Flan-T5-783M",
+		);
+	}
+	return generator;
+}
+
+export async function analyzeFirstSentence(coverLetterText) {
+	const generator = await getGenerator();
+
+	// Extract the first sentence from the cover letter
+	const firstSentence = coverLetterText.split(/(?<=[.!?])\s/)[0];
+
+	// Check if firstSentence is valid
+	if (!firstSentence || firstSentence.trim() === "") {
+		return "The cover letter does not contain a valid opening sentence for evaluation.";
+	}
 
 	const prompt = `
+        Please evaluate the effectiveness of the following first sentence from a cover letter:
 
-        First Sentence of Cover Letter:
         "${firstSentence}"
-        
-        Instruction:
-        Evaluate the strength of the first sentence as an opening for the cover letter and explain your reasoning.
+
+        Consider the following aspects:
+
+        - **Engagement**: Does it capture the reader's attention?
+        - **Clarity**: Is it clear and easy to understand?
+        - **Professionalism**: Does it present the candidate appropriately?
+        - **Impact**: Does it make a strong, positive impression?
+
+        Provide constructive feedback, highlighting strengths and areas for improvement. Offer specific suggestions on how to enhance the sentence.
         `;
 
 	const output = await generator(prompt, { max_length: 500 });
 
-	return output[0].generated_text;
+	return output[0].generated_text.trim();
 }

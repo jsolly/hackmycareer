@@ -56,7 +56,9 @@ import Layout from "../layouts/Layout.astro";
           <div class="mt-4">
             <h4 class="text-md font-medium text-custom-offwhite">First Sentence Evaluation</h4>
             <div id="first-sentence-evaluation" class="mt-1 text-xl font-bold text-custom-gray">-</div>
-            <div id="loading-spinner" class="mt-1 text-xl font-bold text-custom-gray hidden">Loading...</div>
+            <div id="loading-spinner" class="mt-1 text-xl font-bold text-custom-gray hidden loading-dots">
+              Loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+            </div>
           </div>
         </div>
         
@@ -143,3 +145,28 @@ import Layout from "../layouts/Layout.astro";
   </script>
   </div>
 </Layout>
+
+<style>
+  .loading-dots .dot {
+    opacity: 0;
+    animation: loading-dots 1s infinite;
+  }
+  .loading-dots .dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .loading-dots .dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes loading-dots {
+    0% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
