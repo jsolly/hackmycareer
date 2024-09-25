@@ -34,16 +34,32 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
 
+    <!-- Analyze Button -->
+    <div class="mt-4">
+      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Analyze</button>
+    </div>
+
     <!-- Metrics Widgets -->
     <div class="mt-8">
       <h2 class="text-xl font-semibold mb-4 text-custom-offwhite">Metrics</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Flesch Kincaid Reading Level -->
         <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
           <h3 class="text-lg font-semibold text-custom-offwhite">Overall Flesch-Kincaid Readability</h3>
           <div id="flesch-kincaid" class="mt-2 text-2xl font-bold text-custom-gray">-</div>
+          <!-- Personal Pronoun Usage -->
+          <div class="mt-4">
+            <h4 class="text-md font-medium text-custom-offwhite">Personal Pronouns (Minimize)</h4>
+            <div id="pronoun-count" class="mt-1 text-xl font-bold text-custom-gray">-</div>
+          </div>
+          <!-- First Sentence Evaluation -->
+          <div class="mt-4">
+            <h4 class="text-md font-medium text-custom-offwhite">First Sentence Evaluation</h4>
+            <div id="first-sentence-evaluation" class="mt-1 text-xl font-bold text-custom-gray">-</div>
+            <div id="loading-spinner" class="mt-1 text-xl font-bold text-custom-gray hidden">Loading...</div>
+          </div>
         </div>
-
+        
         <!-- Top 10 Sentences by Reading Level -->
         <div class="p-4 bg-subtle-dark-overlay-lvl-2 rounded-lg shadow">
           <h3 class="text-lg font-semibold text-custom-offwhite">Top 10 Difficult Sentences (Reading Level)</h3>
@@ -71,15 +87,19 @@ import Layout from "../layouts/Layout.astro";
         <span>0-29 (Very Difficult)</span>
       </div>
     </div>
-  </div>
 
   <script type="module">
-    import { calculateFleschKincaidGradeLevel, getTop10SentencesByReadingLevel } from '/src/scripts/utils/fleschKincaid.js'; 
+    import { calculateFleschKincaidGradeLevel, getTop10SentencesByReadingLevel } from '/src/scripts/utils/fleschKincaid.js';
+    import { countPersonalPronouns, analyzeFirstSentence } from '/src/scripts/utils/metrics.js';
+    
     const coverLetterTextarea = document.getElementById('cover-letter');
     const jobDescriptionTextarea = document.getElementById('job-description');
+    const analyzeButton = document.getElementById('analyze-button');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const firstSentenceEvaluationElement = document.getElementById('first-sentence-evaluation');
 
-    coverLetterTextarea.addEventListener('input', updateMetrics);
-    jobDescriptionTextarea.addEventListener('input', updateMetrics);
+    // Add event listener to the "Analyze" button
+    analyzeButton.addEventListener('click', updateMetrics);
 
     async function updateMetrics() {
       const coverLetterText = coverLetterTextarea.value;
@@ -99,6 +119,27 @@ import Layout from "../layouts/Layout.astro";
 
       // Inject the generated <li> elements into the <ol> container
       document.getElementById('top-sentences').innerHTML = topSentences.join('');
+
+      // Calculate Personal Pronoun Usage
+      const pronounCount = countPersonalPronouns(coverLetterText);
+      const pronounCountElement = document.getElementById('pronoun-count');
+      pronounCountElement.innerHTML = `
+        <span class="text-2xl font-bold">${pronounCount}</span>
+      `;
+
+      // Calculate First Sentence Strength
+      if (coverLetterText.trim() && jobDescriptionText.trim()) {
+        loadingSpinner.classList.remove('hidden');
+        firstSentenceEvaluationElement.classList.add('hidden');
+        const firstSentenceEvaluation = await analyzeFirstSentence(coverLetterText, jobDescriptionText);
+        loadingSpinner.classList.add('hidden');
+        firstSentenceEvaluationElement.classList.remove('hidden');
+        firstSentenceEvaluationElement.innerHTML = `
+          <span class="text-sm">${firstSentenceEvaluation}</span>
+        `;
+      }
     }
+    
   </script>
+  </div>
 </Layout>
