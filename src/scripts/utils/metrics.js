@@ -8,7 +8,7 @@ import { pipeline } from "@xenova/transformers";
  */
 export function countPersonalPronouns(text) {
 	const personalPronouns = [
-		"I",
+		"i",
 		"me",
 		"my",
 		"mine",
