@@ -57,33 +57,60 @@ async function getGenerator() {
 	return generator;
 }
 
-export async function analyzeFirstSentence(coverLetterText) {
+export async function computeLLMEval(coverLetterText, jobDescriptionText) {
 	const generator = await getGenerator();
 
-	// Extract the first sentence from the cover letter
-	const firstSentence = coverLetterText.split(/(?<=[.!?])\s/)[0];
-
-	// Check if firstSentence is valid
-	if (!firstSentence || firstSentence.trim() === "") {
-		return "The cover letter does not contain a valid opening sentence for evaluation.";
+	// Check if coverLetterText and jobDescriptionText are valid
+	if (!coverLetterText || coverLetterText.trim() === "") {
+		return "The cover letter text is empty or invalid.";
+	}
+	if (!jobDescriptionText || jobDescriptionText.trim() === "") {
+		return "The job description text is empty or invalid.";
 	}
 
 	const prompt = `
-        Please evaluate the effectiveness of the following first sentence from a cover letter:
+		Please evaluate the effectiveness of the following cover letter in the context of the provided job description:
 
-        "${firstSentence}"
+		**Cover Letter:**
+		"${coverLetterText}"
 
-        Consider the following aspects:
+		**Job Description:**
+		"${jobDescriptionText}"
 
-        - **Engagement**: Does it capture the reader's attention?
-        - **Clarity**: Is it clear and easy to understand?
-        - **Professionalism**: Does it present the candidate appropriately?
-        - **Impact**: Does it make a strong, positive impression?
+		Consider the following aspects:
 
-        Provide constructive feedback, highlighting strengths and areas for improvement. Offer specific suggestions on how to enhance the sentence.
-        `;
+		- **Relevance**: How well does the cover letter address the job requirements?
+		- **Engagement**: Does it capture the reader's attention?
+		- **Clarity**: Is it clear and easy to understand?
+		- **Professionalism**: Does it present the candidate appropriately?
+		- **Impact**: Does it make a strong, positive impression?
 
-	const output = await generator(prompt, { max_length: 500 });
+		Provide constructive feedback, highlighting strengths and areas for improvement. Offer specific suggestions on how to enhance the cover letter.
+		`;
+
+	const output = await generator(prompt, { max_length: 1000 });
 
 	return output[0].generated_text.trim();
+}
+
+export async function extractKeywordsFromJobDescription(jobDescriptionText) {
+	const generator = await getGenerator();
+
+	const prompt = `
+		Extract the most relevant keywords from the following job description:
+
+		"${jobDescriptionText}"
+
+		Provide a list of keywords that best represent the key skills, qualifications, and responsibilities mentioned in the job description.
+	`;
+
+	const output = await generator(prompt, { max_length: 100 });
+
+	// Assuming the output is a comma-separated list of keywords
+	const keywords = output[0].generated_text
+		.trim()
+		.split(",")
+		.map((keyword) => keyword.trim());
+
+	return keywords;
 }
