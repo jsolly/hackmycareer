@@ -38,21 +38,9 @@ importers:
       keyword-extractor:
         specifier: ^0.0.28
         version: 0.0.28
-      lemmatizer:
-        specifier: ^0.0.1
-        version: 0.0.1
-      mdast-util-to-string:
-        specifier: ^4.0.0
-        version: 4.0.0
-      reading-time:
-        specifier: ^1.5.0
-        version: 1.5.0
       sharp:
         specifier: ^0.33.3
         version: 0.33.3
-      stopword:
-        specifier: ^3.1.1
-        version: 3.1.1
       tailwindcss:
         specifier: ^3.4.3
         version: 3.4.3
@@ -1210,15 +1198,6 @@ packages:
   emoji-regex@9.2.2:
     resolution: {integrity: sha512-L18DaJsXSUk2+42pv8mLs5jJT2hqFkFE4j21wOmgbUqsZ2hL72NsUU785g9RXgo3s0ZNgVl42TiHp3ZtOv/Vyg==}
 
-  en-inflectors@1.0.12:
-    resolution: {integrity: sha512-G9wwJMx9DQQzwom8J8e8ErVpI6h/Z5BpYusJCE2Q/2NfgBNYCesyNaCOOskZAhOrw2nmR4D8nYAv4Xv/INIbzw==}
-
-  en-lexicon@1.0.11:
-    resolution: {integrity: sha512-eanOw9551H6jMRpRK023+Nlss5qnuAi99drXcSUzQySsMrB43teDNbin/AbpOfnemQiTtuZChXYm2kEIR1Mhmg==}
-
-  en-stemmer@1.0.3:
-    resolution: {integrity: sha512-sBeYsHLqZWACn/mTRLAMdYb/A53s55r4/nCB2UjKK96EBuRQ4t4GKl4V1pW/0hvzdncfYlZRT+JSIRxCtoYqbA==}
-
   end-of-stream@1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
 
@@ -1636,9 +1615,6 @@ packages:
   kleur@4.1.5:
     resolution: {integrity: sha512-o+NO+8WrRiQEE4/7nwRJhN1HWpVmJm511pBHUxPLtp0BUISzlBplORYSmTclCnJvQq2tKu/sgl3xVpkc7ZWuQQ==}
     engines: {node: '>=6'}
-
-  lemmatizer@0.0.1:
-    resolution: {integrity: sha512-OhVYdbBYeCHE0Jea6L8jzbyKzZyZVjq/Aexd7Tv/kQa4TSiXR9HQ7+SgsD/VRzNNEB2sfO5HCx4Czg1fWgibDw==}
 
   lilconfig@2.1.0:
     resolution: {integrity: sha512-utWOt/GHzuUxnLKxB6dk81RoOeoNeHgbrXiuGk4yyF5qlRz+iIVWu56E2fqGHFrXz0QNUhLB/8nKqvRH66JKGQ==}
@@ -2209,9 +2185,6 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
-  reading-time@1.5.0:
-    resolution: {integrity: sha512-onYyVhBNr4CmAxFsKS7bz+uTLRakypIe4R+5A824vBSkQy/hB3fZepoVEf8OVAxzLvK+H/jm9TzpI3ETSm64Kg==}
-
   regex@4.3.2:
     resolution: {integrity: sha512-kK/AA3A9K6q2js89+VMymcboLOlF5lZRCYJv3gzszXFHBr6kO6qLGzbm+UIugBEV8SMMKCTR59txoY6ctRHYVw==}
 
@@ -2409,9 +2382,6 @@ packages:
   stdin-discarder@0.2.2:
     resolution: {integrity: sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==}
     engines: {node: '>=18'}
-
-  stopword@3.1.1:
-    resolution: {integrity: sha512-TzJdIuzqJNo6IaFvrF3fYqu08uJ/0VMsdABl6d6+dt6daD7QeHJnMt9sPqhVIxEmNaaeE8+eandVPJv9RhAL5Q==}
 
   stream-replace-string@2.0.0:
     resolution: {integrity: sha512-TlnjJ1C0QrmxRNrON00JvaFFlNh5TTG00APw23j74ET7gkQpTASi6/L2fuiav8pzK715HXtUeClpBTw2NPSn6w==}
@@ -4088,16 +4058,6 @@ snapshots:
 
   emoji-regex@9.2.2: {}
 
-  en-inflectors@1.0.12:
-    dependencies:
-      en-stemmer: 1.0.3
-
-  en-lexicon@1.0.11:
-    dependencies:
-      en-inflectors: 1.0.12
-
-  en-stemmer@1.0.3: {}
-
   end-of-stream@1.4.4:
     dependencies:
       once: 1.4.0
@@ -4560,12 +4520,6 @@ snapshots:
   kleur@3.0.3: {}
 
   kleur@4.1.5: {}
-
-  lemmatizer@0.0.1:
-    dependencies:
-      en-inflectors: 1.0.12
-      en-lexicon: 1.0.11
-      en-stemmer: 1.0.3
 
   lilconfig@2.1.0: {}
 
@@ -5329,8 +5283,6 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
-  reading-time@1.5.0: {}
-
   regex@4.3.2: {}
 
   rehype-parse@9.0.0:
@@ -5602,8 +5554,6 @@ snapshots:
   sprintf-js@1.0.3: {}
 
   stdin-discarder@0.2.2: {}
-
-  stopword@3.1.1: {}
 
   stream-replace-string@2.0.0: {}
 
