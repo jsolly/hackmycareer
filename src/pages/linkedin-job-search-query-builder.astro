@@ -53,6 +53,7 @@ import Layout from "../layouts/Layout.astro";
           id="exclude-keywords"
           name="exclude-keywords"
           rows="5"
+          placeholder="E.g. oracle, Jquery, COBOL, PHP, Perl..."
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
         ></textarea>
       </div>
@@ -66,7 +67,7 @@ import Layout from "../layouts/Layout.astro";
     <!-- Generated Query -->
     <div id="generated-query" class="mt-6 hidden">
       <h2 class="text-xl font-semibold mb-2 text-custom-offwhite">Your LinkedIn Search Query:</h2>
-      <pre class="bg-gray-800 text-white p-4 rounded" id="query-output"></pre>
+      <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto" id="query-output" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
       <button id="copy-button" class="mt-2 px-4 py-2 bg-green-500 text-white rounded">Copy to Clipboard</button>
       <p class="mt-2 text-custom-gray">Copy this query and paste it into the LinkedIn search bar to find job listings tailored to your resume.</p>
     </div>
@@ -74,7 +75,7 @@ import Layout from "../layouts/Layout.astro";
   </div>
 
   <script type="module">
-    import { extractKeywordsFromText, extractNegativeKeywords } from '/src/scripts/utils/keywordExtractor.js';
+    import { extractKeywordsFromResumeText } from '/src/scripts/utils/keywordExtractor.js';
 
     const analyzeButton = document.getElementById('analyze-button');
     const resumeTextarea = document.getElementById('resume');
@@ -104,8 +105,8 @@ import Layout from "../layouts/Layout.astro";
 
       try {
         // Extract keywords
-        const includeKeywords = await extractKeywordsFromText(resumeText);
-        const excludeKeywords = await extractNegativeKeywords(resumeText);
+        const includeKeywords = await extractKeywordsFromResumeText(resumeText);
+        const excludeKeywords = []; // Initialize excludeKeywords as an empty array
 
         // Hide loading spinner
         loadingSpinner.classList.add('hidden');

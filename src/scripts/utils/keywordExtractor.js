@@ -1,65 +1,77 @@
 import { getGenerator } from "./llmUtils";
+import { removeStopwords } from "stopword";
+import { lemmatizer } from "lemmatizer";
+import keyword_extractor from "keyword-extractor";
 
-export async function extractKeywordsFromText(text) {
-	const generator = await getGenerator();
-
-	const prompt = `
-    Extract the most relevant keywords from the following text:
-
-    "${text}"
-
-    Provide a comma-separated list of keywords that best represent the main topics and themes in the text.
-  `;
-
-	const output = await generator(prompt, { max_length: 100 });
-
-	// Assuming the output is a comma-separated list of keywords
-	const keywordsText = output[0].generated_text.trim();
-
-	// Split the keywords and trim whitespace
-	const keywords = keywordsText
-		.split(",")
-		.map((keyword) => keyword.trim())
-		.filter((keyword) => keyword.length > 0);
-
-	return keywords;
-}
-
-export async function extractNegativeKeywords(text) {
-	const generator = await getGenerator();
-
-	const prompt = `
-    Based on the following resume:
-
-    "${text}"
-
-    Identify job titles, roles, or terms that are **not relevant** or should be **excluded** from the candidate's job search. These might include positions the candidate wants to avoid or areas outside their expertise.
-
-    Provide a comma-separated list of negative keywords that should be used to exclude irrelevant job postings.
-
-    Negative Keywords:
-  `;
-
-	const output = await generator(prompt, { max_length: 150 });
-
-	// Assuming the output is a list of keywords after "Negative Keywords:"
-	const negativeKeywordsText = output[0].generated_text.trim();
-
-	// Extract the keywords after "Negative Keywords:"
-	const keywordsStartIndex = negativeKeywordsText.indexOf("Negative Keywords:");
-	let keywordsList = negativeKeywordsText;
-
-	if (keywordsStartIndex !== -1) {
-		keywordsList = negativeKeywordsText.substring(
-			keywordsStartIndex + "Negative Keywords:".length,
-		);
+export async function extractKeywordsFromResumeText(text, maxLength = 500) {
+	if (typeof text !== "string" || text.trim().length === 0) {
+		throw new Error("Input text must be a non-empty string.");
 	}
 
+	let generator;
+	try {
+		generator = await getGenerator();
+	} catch (error) {
+		throw new Error(`Failed to get generator: ${error.message}`);
+	}
+
+	// Preprocessing: Clean and process the text
+	let cleanedText = text
+		.toLowerCase() // Convert to lowercase
+		.replace(/[^\w\s]/gi, "") // Remove special characters
+		.replace(/\d+/g, "") // Remove numbers
+		.split(/\s+/); // Split into words
+
+	cleanedText = cleanedText.map((word) => lemmatizer(word)); // Lemmatize words
+	const filteredWords = removeStopwords(cleanedText);
+	const filteredText = filteredWords.join(" ").trim(); // Join words and trim extra spaces
+
+	// Determine the number of keywords based on the length of the text
+	const maxKeywords = Math.max(5, Math.floor(filteredWords.length / 10));
+
+	// Step 1: Use keyword-extractor to get initial keywords
+	let initialKeywords;
+	try {
+		initialKeywords = keyword_extractor.extract(filteredText, {
+			language: "english",
+			remove_digits: true,
+			return_changed_case: true,
+			remove_duplicates: true,
+			return_max_ngrams: 2,
+		});
+		// Limit to maxKeywords
+		initialKeywords = initialKeywords.slice(0, maxKeywords);
+	} catch (error) {
+		throw new Error(`Failed to extract initial keywords: ${error.message}`);
+	}
+
+	// Step 2: Create prompt for LLM using only initial keywords
+	const prompt = `
+		Given the following initial keywords extracted from a resume:
+
+		${initialKeywords.join(", ")}
+
+		Please refine this list to better represent the main skills and qualifications. Provide a concise, comma-separated list of the most relevant keywords that can be used to find suitable job opportunities.
+		`;
+
+	let output;
+	try {
+		output = await generator(prompt, { max_length: maxLength });
+	} catch (error) {
+		throw new Error(`Failed to generate keywords: ${error.message}`);
+	}
+
+	// Assuming the output is a comma-separated list of keywords
+	let keywordsText = output[0]?.generated_text.trim() || "";
+
+	// Replace dashes with commas
+	keywordsText = keywordsText.replace(/ - /g, ", ");
+
 	// Split the keywords and trim whitespace
-	const negativeKeywords = keywordsList
+	const refinedKeywords = keywordsText
 		.split(",")
 		.map((keyword) => keyword.trim())
 		.filter((keyword) => keyword.length > 0);
 
-	return negativeKeywords;
+	return refinedKeywords;
 }
