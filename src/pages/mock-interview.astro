@@ -1,0 +1,82 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const consultingServices = [
+	{
+		id: "mock-technical-interview",
+		title: "Mock Technical Interview Session",
+		sessions: [
+			{
+				id: 1,
+				name: "30-Minute Mock Interview with Detailed Feedback",
+				description:
+					"Prepare for your next technical interview with a 30-minute mock session and receive a detailed feedback email to help you improve and succeed.",
+				features: [
+					"Simulated technical interview tailored to your target role",
+					"Real-time problem-solving and coding challenges",
+					"Immediate verbal feedback during the session",
+					"Detailed feedback email highlighting strengths and areas for improvement",
+					"Tips and strategies for acing technical interviews",
+				],
+				price: "$50 USD",
+				bookingProcess: [
+					"Make payment to confirm your booking.",
+					"Schedule your mock interview at a convenient time.",
+					"Participate in the 30-minute mock technical interview.",
+					"Receive a detailed feedback email within 2 business days.",
+				],
+			},
+		],
+	},
+];
+---
+
+<script src="/src/scripts/stripeBuyButton"></script>
+
+<Layout
+  title="Mock Technical Interview Session"
+  description="Get ready for your next technical interview with mock interview sessions and tailored feedback."
+>
+  <div class="max-w-4xl mx-auto">
+    {consultingServices.map((service) => (
+      <section class="bg-subtle-dark-overlay-lvl-2 rounded-lg mb-8 p-8 shadow-lg">
+        <h1 class="text-2xl text-custom-offwhite font-bold leading-none">
+          {service.title}
+        </h1>
+        {service.sessions.map((session) => (
+          <article class="border-t-2 border-gray-800 pt-4 mt-4">
+            <h2 class="text-xl text-custom-offwhite font-semibold">
+              {session.name}
+            </h2>
+            <p class="text-custom-gray">{session.description}</p>
+            <h3 class="text-lg text-custom-offwhite font-semibold mt-4">
+              Features:
+            </h3>
+            <ul class="list-disc pl-5 text-custom-gray">
+              {session.features.map((feature) => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+            <p class="text-custom-gray mb-1 mt-4">
+              <strong class="text-custom-offwhite">Price:</strong> {session.price}
+            </p>
+            <h3 class="text-lg text-custom-offwhite font-semibold mt-4">
+              Booking Process:
+            </h3>
+            <ol class="list-decimal pl-5 text-custom-gray">
+              {session.bookingProcess.map((step) => (
+                <li>{step}</li>
+              ))}
+            </ol>
+            <div class="stripe-buy-button-container flex justify-center mt-5">
+              <stripe-buy-button
+                buy-button-id="buy_btn_1XYZ2ABCDEF3GHIJKL4MNOPQ"
+                publishable-key="pk_live_XXXXXXXXXXXXXXXXXXXXXXXX"
+              ></stripe-buy-button>
+            </div>
+          </article>
+        ))}
+      </section>
+    ))}
+  </div>
+</Layout>

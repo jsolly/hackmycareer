@@ -1,0 +1,82 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const consultingServices = [
+	{
+		id: "career-planning-session",
+		title: "60-Minute Career Planning Session",
+		sessions: [
+			{
+				id: 1,
+				name: "60-Minute Video Call with Follow-Up Action Items",
+				description:
+					"A 60-minute video call where we will craft a personalized career plan tailored to your goals. Or ask me whatever you want!",
+				features: [
+					"Comprehensive 60-minute one-on-one video call",
+					"Personalized career planning and goal setting",
+					"Discussion on career transitions, skill development, and opportunities",
+					"Expert advice tailored to your industry and experience level",
+					"Follow-up email with actionable items and resources",
+				],
+				price: "$100 USD",
+				bookingProcess: [
+					"Make payment to confirm your booking.",
+					"Schedule your 60-minute career planning session at a convenient time.",
+					"Participate in the video call and discuss your career aspirations.",
+					"Receive a follow-up email with action items and resources within 2 business days.",
+				],
+			},
+		],
+	},
+];
+---
+
+<script src="/src/scripts/stripeBuyButton"></script>
+
+<Layout
+  title="60-Minute Career Planning Session"
+  description="A 60-minute video call where we will craft a career plan (or ask me whatever you want!)"
+>
+  <div class="max-w-4xl mx-auto">
+    {consultingServices.map((service) => (
+      <section class="bg-subtle-dark-overlay-lvl-2 rounded-lg mb-8 p-8 shadow-lg">
+        <h1 class="text-2xl text-custom-offwhite font-bold leading-none">
+          {service.title}
+        </h1>
+        {service.sessions.map((session) => (
+          <article class="border-t-2 border-gray-800 pt-4 mt-4">
+            <h2 class="text-xl text-custom-offwhite font-semibold">
+              {session.name}
+            </h2>
+            <p class="text-custom-gray">{session.description}</p>
+            <h3 class="text-lg text-custom-offwhite font-semibold mt-4">
+              Features:
+            </h3>
+            <ul class="list-disc pl-5 text-custom-gray">
+              {session.features.map((feature) => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+            <p class="text-custom-gray mb-1 mt-4">
+              <strong class="text-custom-offwhite">Price:</strong> {session.price}
+            </p>
+            <h3 class="text-lg text-custom-offwhite font-semibold mt-4">
+              Booking Process:
+            </h3>
+            <ol class="list-decimal pl-5 text-custom-gray">
+              {session.bookingProcess.map((step) => (
+                <li>{step}</li>
+              ))}
+            </ol>
+            <div class="stripe-buy-button-container flex justify-center mt-5">
+              <stripe-buy-button
+                buy-button-id="buy_btn_1ABC2DEFGHIJ3KLMNO4PQRST"
+                publishable-key="pk_live_XXXXXXXXXXXXXXXXXXXXXXXX"
+              ></stripe-buy-button>
+            </div>
+          </article>
+        ))}
+      </section>
+    ))}
+  </div>
+</Layout>
