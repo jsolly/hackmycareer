@@ -9,28 +9,58 @@ import Layout from "../layouts/Layout.astro";
   <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">LinkedIn Search Query Builder</h1>
     <p class="mb-4 text-custom-gray">
-      Paste your resume below and click "Analyze" to generate a customized LinkedIn search query based on keywords extracted from your resume.
+      Paste your resume below and click "Analyze Resume" to extract keywords and generate a customized LinkedIn search query. You can modify the keywords before generating the final query.
     </p>
 
-    <!-- Input Field -->
+    <!-- Resume Input Field -->
     <div class="mb-6">
       <label for="resume" class="block text-sm font-medium text-custom-offwhite">Resume</label>
       <textarea
         id="resume"
         name="resume"
-        rows="15"
+        rows="10"
         class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
       ></textarea>
     </div>
 
     <!-- Analyze Button -->
     <div class="mt-4">
-      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Generate Search Query</button>
+      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Generate Initial Search Query</button>
     </div>
 
     <!-- Loading Spinner -->
     <div id="loading-spinner" class="mt-4 text-xl font-bold text-custom-gray hidden loading-dots">
-      Generating Query<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      Generating Search Query (This could take ~30 Seconds)<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+
+    <!-- Keywords Text Areas -->
+    <div id="keywords-section" class="mt-6 hidden">
+      <!-- Positive Keywords -->
+      <div class="mb-6">
+        <label for="include-keywords" class="block text-sm font-medium text-custom-offwhite">Include Keywords (Modify as needed)</label>
+        <textarea
+          id="include-keywords"
+          name="include-keywords"
+          rows="5"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
+      </div>
+
+      <!-- Negative Keywords -->
+      <div class="mb-6">
+        <label for="exclude-keywords" class="block text-sm font-medium text-custom-offwhite">Exclude Keywords (Modify as needed)</label>
+        <textarea
+          id="exclude-keywords"
+          name="exclude-keywords"
+          rows="5"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
+      </div>
+
+      <!-- Re-generate Search Query Button -->
+      <div class="mt-4">
+        <button id="regenerate-button" class="px-4 py-2 bg-green-500 text-white rounded">Re-generate Search Query</button>
+      </div>
     </div>
 
     <!-- Generated Query -->
@@ -48,9 +78,13 @@ import Layout from "../layouts/Layout.astro";
 
     const analyzeButton = document.getElementById('analyze-button');
     const resumeTextarea = document.getElementById('resume');
+    const includeKeywordsTextarea = document.getElementById('include-keywords');
+    const excludeKeywordsTextarea = document.getElementById('exclude-keywords');
+    const keywordsSection = document.getElementById('keywords-section');
     const generatedQueryDiv = document.getElementById('generated-query');
     const queryOutput = document.getElementById('query-output');
     const loadingSpinner = document.getElementById('loading-spinner');
+    const regenerateButton = document.getElementById('regenerate-button');
     const copyButton = document.getElementById('copy-button');
 
     analyzeButton.addEventListener('click', async () => {
@@ -65,39 +99,65 @@ import Layout from "../layouts/Layout.astro";
       loadingSpinner.classList.remove('hidden');
 
       // Hide previous results
+      keywordsSection.classList.add('hidden');
       generatedQueryDiv.classList.add('hidden');
 
       try {
-        // Extract keywords and generate query
+        // Extract keywords
         const includeKeywords = await extractKeywordsFromText(resumeText);
         const excludeKeywords = await extractNegativeKeywords(resumeText);
-        
-        // Build LinkedIn search query
-        let query = '';
-
-        if (includeKeywords.length > 0) {
-          query += '(' + includeKeywords.map(k => '"' + k + '"').join(' OR ') + ')';
-        }
-
-        if (excludeKeywords.length > 0) {
-          if (query.length > 0) {
-            query += ' AND ';
-          }
-          query += '(-(' + excludeKeywords.map(k => '"' + k + '"').join(' OR ') + '))';
-        }
 
         // Hide loading spinner
         loadingSpinner.classList.add('hidden');
 
-        // Display the generated query
-        queryOutput.textContent = query;
-        generatedQueryDiv.classList.remove('hidden');
+        // Display keywords in textareas
+        includeKeywordsTextarea.value = includeKeywords.join(', ');
+        excludeKeywordsTextarea.value = excludeKeywords.join(', ');
+
+        // Show keywords section
+        keywordsSection.classList.remove('hidden');
+
+        // Automatically generate the initial search query
+        generateSearchQuery();
       } catch (error) {
-        console.error('Error generating query:', error);
+        console.error('Error extracting keywords:', error);
         loadingSpinner.classList.add('hidden');
-        alert('An error occurred while generating the query. Please try again.');
+        alert('An error occurred while extracting keywords. Please try again.');
       }
     });
+
+    regenerateButton.addEventListener('click', () => {
+      generateSearchQuery();
+    });
+
+    function generateSearchQuery() {
+      const includeKeywords = includeKeywordsTextarea.value
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k.length > 0);
+      const excludeKeywords = excludeKeywordsTextarea.value
+        .split(',')
+        .map(k => k.trim())
+        .filter(k => k.length > 0);
+
+      // Build LinkedIn search query
+      let query = '';
+
+      if (includeKeywords.length > 0) {
+        query += '(' + includeKeywords.map(k => '"' + k + '"').join(' OR ') + ')';
+      }
+
+      if (excludeKeywords.length > 0) {
+        if (query.length > 0) {
+          query += ' AND ';
+        }
+        query += '(-(' + excludeKeywords.map(k => '"' + k + '"').join(' OR ') + '))';
+      }
+
+      // Display the generated query
+      queryOutput.textContent = query;
+      generatedQueryDiv.classList.remove('hidden');
+    }
 
     // Copy to Clipboard Functionality
     copyButton.addEventListener('click', () => {
