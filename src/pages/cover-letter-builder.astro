@@ -99,7 +99,9 @@ import Layout from "../layouts/Layout.astro";
 
   <script type="module">
     import { calculateFleschKincaidGradeLevel, getTop10SentencesByReadingLevel } from '/src/scripts/utils/fleschKincaid.js';
-    import { countPersonalPronouns, computeLLMEval, extractKeywordsFromJobDescription } from '/src/scripts/utils/metrics.js';
+    import { countPersonalPronouns } from '/src/scripts/utils/metrics.js';
+    import { extractKeywordsFromText } from '/src/scripts/utils/keywordExtractor.js';
+    import { evalCoverLetter } from '/src/scripts/utils/evalText.js';
     
     const coverLetterTextarea = document.getElementById('cover-letter');
     const jobDescriptionTextarea = document.getElementById('job-description');
@@ -144,11 +146,11 @@ import Layout from "../layouts/Layout.astro";
       // Calculate LLM evaluation
       loadingSpinner.classList.remove('hidden');
       llmEval.classList.add('hidden');
-      const firstSentenceEvaluation = await computeLLMEval(coverLetterText, jobDescriptionText);
+      const coverLetterEval = await evalCoverLetter(coverLetterText, jobDescriptionText);
       loadingSpinner.classList.add('hidden');
       llmEval.classList.remove('hidden');
       llmEval.innerHTML = `
-        <span class="text-sm">${firstSentenceEvaluation}</span>
+        <span class="text-sm">${coverLetterEval}</span>
       `;
     }
     
@@ -161,7 +163,7 @@ import Layout from "../layouts/Layout.astro";
       // Show loading spinner
       loadingKeywordsSpinner.classList.remove('hidden');
       
-      const keywords = await extractKeywordsFromJobDescription(jobDescriptionText);
+      const keywords = await extractKeywordsFromText(jobDescriptionText);
       
       // Hide loading spinner
       loadingKeywordsSpinner.classList.add('hidden');

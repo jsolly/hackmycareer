@@ -1,0 +1,137 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="LinkedIn Search Query Builder"
+  description="Generate a customized LinkedIn search query based on your resume."
+>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">LinkedIn Search Query Builder</h1>
+    <p class="mb-4 text-custom-gray">
+      Paste your resume below and click "Analyze" to generate a customized LinkedIn search query based on keywords extracted from your resume.
+    </p>
+
+    <!-- Input Field -->
+    <div class="mb-6">
+      <label for="resume" class="block text-sm font-medium text-custom-offwhite">Resume</label>
+      <textarea
+        id="resume"
+        name="resume"
+        rows="15"
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+      ></textarea>
+    </div>
+
+    <!-- Analyze Button -->
+    <div class="mt-4">
+      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Generate Search Query</button>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loading-spinner" class="mt-4 text-xl font-bold text-custom-gray hidden loading-dots">
+      Generating Query<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+    </div>
+
+    <!-- Generated Query -->
+    <div id="generated-query" class="mt-6 hidden">
+      <h2 class="text-xl font-semibold mb-2 text-custom-offwhite">Your LinkedIn Search Query:</h2>
+      <pre class="bg-gray-800 text-white p-4 rounded" id="query-output"></pre>
+      <button id="copy-button" class="mt-2 px-4 py-2 bg-green-500 text-white rounded">Copy to Clipboard</button>
+      <p class="mt-2 text-custom-gray">Copy this query and paste it into the LinkedIn search bar to find job listings tailored to your resume.</p>
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { extractKeywordsFromText, extractNegativeKeywords } from '/src/scripts/utils/keywordExtractor.js';
+
+    const analyzeButton = document.getElementById('analyze-button');
+    const resumeTextarea = document.getElementById('resume');
+    const generatedQueryDiv = document.getElementById('generated-query');
+    const queryOutput = document.getElementById('query-output');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const copyButton = document.getElementById('copy-button');
+
+    analyzeButton.addEventListener('click', async () => {
+      const resumeText = resumeTextarea.value.trim();
+
+      if (!resumeText) {
+        alert('Please paste your resume into the text area.');
+        return;
+      }
+
+      // Show loading spinner
+      loadingSpinner.classList.remove('hidden');
+
+      // Hide previous results
+      generatedQueryDiv.classList.add('hidden');
+
+      try {
+        // Extract keywords and generate query
+        const includeKeywords = await extractKeywordsFromText(resumeText);
+        const excludeKeywords = await extractNegativeKeywords(resumeText);
+        
+        // Build LinkedIn search query
+        let query = '';
+
+        if (includeKeywords.length > 0) {
+          query += '(' + includeKeywords.map(k => '"' + k + '"').join(' OR ') + ')';
+        }
+
+        if (excludeKeywords.length > 0) {
+          if (query.length > 0) {
+            query += ' AND ';
+          }
+          query += '(-(' + excludeKeywords.map(k => '"' + k + '"').join(' OR ') + '))';
+        }
+
+        // Hide loading spinner
+        loadingSpinner.classList.add('hidden');
+
+        // Display the generated query
+        queryOutput.textContent = query;
+        generatedQueryDiv.classList.remove('hidden');
+      } catch (error) {
+        console.error('Error generating query:', error);
+        loadingSpinner.classList.add('hidden');
+        alert('An error occurred while generating the query. Please try again.');
+      }
+    });
+
+    // Copy to Clipboard Functionality
+    copyButton.addEventListener('click', () => {
+      const queryText = queryOutput.textContent;
+      navigator.clipboard.writeText(queryText).then(() => {
+        alert('Query copied to clipboard!');
+      }, (err) => {
+        console.error('Could not copy text: ', err);
+      });
+    });
+  </script>
+
+  <style>
+    .loading-dots .dot {
+      opacity: 0;
+      animation: loading-dots 1s infinite;
+    }
+    .loading-dots .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .loading-dots .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes loading-dots {
+      0% {
+        opacity: 0;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+  </style>
+</Layout>
