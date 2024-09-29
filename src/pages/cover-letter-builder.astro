@@ -7,7 +7,7 @@ import Layout from "../layouts/Layout.astro";
   description="Optimize your cover letter for a specific job description."
 >
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">AI Cover Letter Optimizer</h1>
+    <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">Cover Letter Optimizer</h1>
     <p class="mb-4 text-custom-gray">
       Paste your cover letter and the job description below to analyze and optimize your cover letter.
     </p>
@@ -43,7 +43,7 @@ import Layout from "../layouts/Layout.astro";
     <!-- Keywords Result -->
     <div id="keywords-result" class="mt-4 text-custom-offwhite"></div>
     <div id="loading-keywords-spinner" class="mt-1 text-xl font-bold text-custom-gray hidden loading-dots">
-      Extracting Keywords<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      Extracting Keywords (This could take ~30 seconds)<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </div>
 
     <!-- Metrics Widgets -->
@@ -100,7 +100,7 @@ import Layout from "../layouts/Layout.astro";
   <script type="module">
     import { calculateFleschKincaidGradeLevel, getTop10SentencesByReadingLevel } from '/src/scripts/utils/fleschKincaid.js';
     import { countPersonalPronouns } from '/src/scripts/utils/metrics.js';
-    import { extractKeywordsFromText } from '/src/scripts/utils/keywordExtractor.js';
+    import { extractKeywordsFromJobDescriptionText } from '/src/scripts/utils/keywordExtractor.js';
     import { evalCoverLetter } from '/src/scripts/utils/evalText.js';
     
     const coverLetterTextarea = document.getElementById('cover-letter');
@@ -163,7 +163,7 @@ import Layout from "../layouts/Layout.astro";
       // Show loading spinner
       loadingKeywordsSpinner.classList.remove('hidden');
       
-      const keywords = await extractKeywordsFromText(jobDescriptionText);
+      const keywords = await extractKeywordsFromJobDescriptionText(jobDescriptionText);
       
       // Hide loading spinner
       loadingKeywordsSpinner.classList.add('hidden');

@@ -9,7 +9,7 @@ import Layout from "../layouts/Layout.astro";
   <div class="max-w-4xl mx-auto">
     <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">LinkedIn Search Query Builder</h1>
     <p class="mb-4 text-custom-gray">
-      Paste your resume below and click "Analyze Resume" to extract keywords and generate a customized LinkedIn search query. You can modify the keywords before generating the final query.
+      Paste your resume below and click "Extract Keywords" to populate the keywords fields. You can modify the keywords, and the search query will update in real-time.
     </p>
 
     <!-- Resume Input Field -->
@@ -25,150 +25,176 @@ import Layout from "../layouts/Layout.astro";
 
     <!-- Analyze Button -->
     <div class="mt-4">
-      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Generate Initial Search Query</button>
+      <button id="analyze-button" class="px-4 py-2 bg-blue-500 text-white rounded">Extract Keywords</button>
     </div>
 
     <!-- Loading Spinner -->
     <div id="loading-spinner" class="mt-4 text-xl font-bold text-custom-gray hidden loading-dots">
-      Generating Search Query (This could take ~30 Seconds)<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      Extracting Keywords (This could take ~30 Seconds)<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </div>
 
-    <!-- Keywords Text Areas -->
-    <div id="keywords-section" class="mt-6 hidden">
-      <!-- Positive Keywords -->
+    <!-- Keywords Text Areas (Visible by Default) -->
+    <div id="keywords-section" class="mt-6">
+      <!-- Include Keywords -->
       <div class="mb-6">
-        <label for="include-keywords" class="block text-sm font-medium text-custom-offwhite">Include Keywords (Modify as needed)</label>
+        <label for="include-keywords" class="block text-sm font-medium text-custom-offwhite">Include Keywords (Technologies, Languages, or Job Titles)</label>
         <textarea
           id="include-keywords"
           name="include-keywords"
           rows="5"
+            placeholder="E.g. JavaScript, Python, GIS, Spatial Analysis, Remote Sensing, Geospatial Developer, GIS Analyst, Full Stack Developer, Software Engineer, Mapbox, Esri, OpenLayers, Leaflet, PostGIS, ArcGIS, GeoJSON, WebGL, Data Visualization, Machine Learning, AWS, Docker, Kubernetes..."
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
         ></textarea>
       </div>
 
-      <!-- Negative Keywords -->
+      <!-- Exclude Keywords -->
       <div class="mb-6">
-        <label for="exclude-keywords" class="block text-sm font-medium text-custom-offwhite">Exclude Keywords (Modify as needed)</label>
+        <label for="exclude-keywords" class="block text-sm font-medium text-custom-offwhite">Exclude Keywords (Technologies, Languages, or Job Titles)</label>
         <textarea
           id="exclude-keywords"
           name="exclude-keywords"
           rows="5"
-          placeholder="E.g. oracle, Jquery, COBOL, PHP, Perl..."
+            placeholder="E.g. COBOL, Fortran, Pascal, Visual Basic, Help Desk, Technical Support, QA Tester, Project Manager, Business Analyst, Sales Representative, Customer Service, Retail..."
           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
         ></textarea>
       </div>
 
-      <!-- Re-generate Search Query Button -->
-      <div class="mt-4">
-        <button id="regenerate-button" class="px-4 py-2 bg-green-500 text-white rounded">Re-generate Search Query</button>
+      <!-- Include Companies -->
+      <div class="mb-6">
+        <label for="include-companies" class="block text-sm font-medium text-custom-offwhite">Include Companies</label>
+        <textarea
+          id="include-companies"
+          name="include-companies"
+          rows="5"
+          placeholder="E.g. Esri, Mapbox, CARTO, Hexagon..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
       </div>
+
+      <!-- Exclude Companies -->
+       <div class="mb-6">
+        <label for="exclude-companies" class="block text-sm font-medium text-custom-offwhite">Exclude Companies</label>
+        <textarea
+          id="exclude-companies"
+          name="exclude-companies"
+          rows="5"
+          placeholder="E.g. Theranos, Enron, FTX..."
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-subtle-dark-overlay-lvl-2 text-custom-gray p-2"
+        ></textarea>
+       </div>
+
     </div>
 
-    <!-- Generated Query -->
-    <div id="generated-query" class="mt-6 hidden">
+    <!-- Generated Query (Visible by Default) -->
+    <div id="generated-query" class="mt-6">
       <h2 class="text-xl font-semibold mb-2 text-custom-offwhite">Your LinkedIn Search Query:</h2>
       <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto" id="query-output" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
       <button id="copy-button" class="mt-2 px-4 py-2 bg-green-500 text-white rounded">Copy to Clipboard</button>
-      <p class="mt-2 text-custom-gray">Copy this query and paste it into the LinkedIn search bar to find job listings tailored to your resume.</p>
+      <button id="mix-it-up-button" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">Mix it Up!</button>
+      <button id="reset-button" class="mt-2 px-4 py-2 bg-red-500 text-white rounded">Reset</button>
+      <p class="mt-2 text-custom-gray">
+        Copy this query and paste it into the LinkedIn search bar to find job listings tailored to your resume, or 
+        <a id="linkedin-search-link" href="#" target="_blank">open LinkedIn in a new tab with this search query pre-populated</a>.
+      </p>
     </div>
 
   </div>
 
   <script type="module">
     import { extractKeywordsFromResumeText } from '/src/scripts/utils/keywordExtractor.js';
+    import { generateSearchQuery, generateQueryVariation, generateLinkedInSearchUrl } from '/src/scripts/utils/buildSearchQuery.js';
 
     const analyzeButton = document.getElementById('analyze-button');
     const resumeTextarea = document.getElementById('resume');
     const includeKeywordsTextarea = document.getElementById('include-keywords');
     const excludeKeywordsTextarea = document.getElementById('exclude-keywords');
-    const keywordsSection = document.getElementById('keywords-section');
-    const generatedQueryDiv = document.getElementById('generated-query');
+    const includeCompaniesTextarea = document.getElementById('include-companies');
+    const excludeCompaniesTextarea = document.getElementById('exclude-companies');
     const queryOutput = document.getElementById('query-output');
     const loadingSpinner = document.getElementById('loading-spinner');
-    const regenerateButton = document.getElementById('regenerate-button');
     const copyButton = document.getElementById('copy-button');
+    const mixItUpButton = document.getElementById('mix-it-up-button');
+    const resetButton = document.getElementById('reset-button');
+    const linkedinSearchLink = document.getElementById('linkedin-search-link');
+
+
+    let query = '';
 
     analyzeButton.addEventListener('click', async () => {
       const resumeText = resumeTextarea.value.trim();
 
-      if (!resumeText) {
-        alert('Please paste your resume into the text area.');
-        return;
-      }
-
       // Show loading spinner
       loadingSpinner.classList.remove('hidden');
 
-      // Hide previous results
-      keywordsSection.classList.add('hidden');
-      generatedQueryDiv.classList.add('hidden');
+      // Extract keywords
+      const includeKeywords = await extractKeywordsFromResumeText(resumeText);
+      const excludeKeywords = []; // Initialize excludeKeywords as an empty array
 
-      try {
-        // Extract keywords
-        const includeKeywords = await extractKeywordsFromResumeText(resumeText);
-        const excludeKeywords = []; // Initialize excludeKeywords as an empty array
+      // Hide loading spinner
+      loadingSpinner.classList.add('hidden');
 
-        // Hide loading spinner
-        loadingSpinner.classList.add('hidden');
+      // Overwrite keywords in textareas
+      includeKeywordsTextarea.value = includeKeywords.join(', ');
+      excludeKeywordsTextarea.value = excludeKeywords.join(', ');
 
-        // Display keywords in textareas
-        includeKeywordsTextarea.value = includeKeywords.join(', ');
-        excludeKeywordsTextarea.value = excludeKeywords.join(', ');
-
-        // Show keywords section
-        keywordsSection.classList.remove('hidden');
-
-        // Automatically generate the initial search query
-        generateSearchQuery();
-      } catch (error) {
-        console.error('Error extracting keywords:', error);
-        loadingSpinner.classList.add('hidden');
-        alert('An error occurred while extracting keywords. Please try again.');
-      }
-    });
-
-    regenerateButton.addEventListener('click', () => {
-      generateSearchQuery();
-    });
-
-    function generateSearchQuery() {
-      const includeKeywords = includeKeywordsTextarea.value
-        .split(',')
-        .map(k => k.trim())
-        .filter(k => k.length > 0);
-      const excludeKeywords = excludeKeywordsTextarea.value
-        .split(',')
-        .map(k => k.trim())
-        .filter(k => k.length > 0);
-
-      // Build LinkedIn search query
-      let query = '';
-
-      if (includeKeywords.length > 0) {
-        query += '(' + includeKeywords.map(k => '"' + k + '"').join(' OR ') + ')';
-      }
-
-      if (excludeKeywords.length > 0) {
-        if (query.length > 0) {
-          query += ' AND ';
-        }
-        query += '(-(' + excludeKeywords.map(k => '"' + k + '"').join(' OR ') + '))';
-      }
-
-      // Display the generated query
+      // Generate initial query
+      query = generateSearchQuery(
+        includeKeywordsTextarea.value,
+        excludeKeywordsTextarea.value,
+        includeCompaniesTextarea.value,
+        excludeCompaniesTextarea.value
+      );
       queryOutput.textContent = query;
-      generatedQueryDiv.classList.remove('hidden');
-    }
+    });
+
+    updateLinkedInSearchLink(query);
+
+    // Real-time query generation as user types
+    [includeKeywordsTextarea, excludeKeywordsTextarea, includeCompaniesTextarea, excludeCompaniesTextarea].forEach(textarea => {
+      textarea.addEventListener('input', () => {
+        query = generateSearchQuery(
+          includeKeywordsTextarea.value,
+          excludeKeywordsTextarea.value,
+          includeCompaniesTextarea.value,
+          excludeCompaniesTextarea.value
+        );
+        queryOutput.textContent = query;
+        updateLinkedInSearchLink(query);
+      });
+    });
 
     // Copy to Clipboard Functionality
     copyButton.addEventListener('click', () => {
       const queryText = queryOutput.textContent;
       navigator.clipboard.writeText(queryText).then(() => {
-        alert('Query copied to clipboard!');
-      }, (err) => {
-        console.error('Could not copy text: ', err);
+      copyButton.textContent = 'Copied!';
+      setTimeout(() => {
+        copyButton.textContent = 'Copy to Clipboard';
+      }, 2000);
       });
     });
+
+    // Mix it Up Functionality
+    mixItUpButton.addEventListener('click', () => {
+      const mixedQuery = generateQueryVariation(query);
+      queryOutput.textContent = mixedQuery;
+      updateLinkedInSearchLink(query);
+    });
+
+    // Reset Functionality
+    resetButton.addEventListener('click', () => {
+      queryOutput.textContent = query;
+      updateLinkedInSearchLink(query);
+    });
+
+    function updateLinkedInSearchLink(query) {
+  if (query.trim() === '') {
+    linkedinSearchLink.href = '#';
+  } else {
+    const linkedinSearchUrl = generateLinkedInSearchUrl(query);
+    linkedinSearchLink.href = linkedinSearchUrl;
+  }
+}
   </script>
 
   <style>
