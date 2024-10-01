@@ -19,6 +19,7 @@
 		"@astrojs/sitemap": "^3.1.6",
 		"@astrojs/tailwind": "^5.1.1",
 		"@astrojs/ts-plugin": "^1.10.2",
+		"@astrojs/vercel": "^7.8.1",
 		"@xenova/transformers": "^2.17.2",
 		"astro": "^4.15.7",
 		"globby": "^14.0.1",
