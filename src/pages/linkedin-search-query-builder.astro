@@ -10,6 +10,7 @@ import Layout from "../layouts/Layout.astro";
     <h1 class="text-2xl font-bold mb-4 text-custom-offwhite">LinkedIn Search Query Builder</h1>
     <p class="mb-4 text-custom-gray">
       Paste your resume below and click "Extract Keywords" to populate the keywords fields. You can modify the keywords, and the search query will update in real-time.
+      Learn more in my blog post: <a href="https://blogthedata.com/post/Find-Your-Dream-Job-With-LinkedIn-Boolean-Search/" target="_blank">Finding GIS Jobs with LinkedIn Boolean Search</a>
     </p>
 
     <!-- Resume Input Field -->
@@ -33,7 +34,6 @@ import Layout from "../layouts/Layout.astro";
       Extracting Keywords (This could take ~30 Seconds)<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
     </div>
 
-    <!-- Keywords Text Areas (Visible by Default) -->
     <div id="keywords-section" class="mt-6">
       <!-- Include Keywords -->
       <div class="mb-6">
@@ -85,7 +85,6 @@ import Layout from "../layouts/Layout.astro";
 
     </div>
 
-    <!-- Generated Query (Visible by Default) -->
     <div id="generated-query" class="mt-6">
       <h2 class="text-xl font-semibold mb-2 text-custom-offwhite">Your LinkedIn Search Query:</h2>
       <pre class="bg-gray-800 text-white p-4 rounded overflow-x-auto" id="query-output" style="white-space: pre-wrap; word-wrap: break-word;"></pre>
