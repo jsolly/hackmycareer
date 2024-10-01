@@ -26,9 +26,6 @@ importers:
       '@xenova/transformers':
         specifier: ^2.17.2
         version: 2.17.2
-      astro:
-        specifier: ^4.15.7
-        version: 4.15.7(@types/node@22.1.0)(rollup@4.22.0)(typescript@5.4.5)
       globby:
         specifier: ^14.0.1
         version: 14.0.1
@@ -60,6 +57,9 @@ importers:
       '@types/node':
         specifier: ^22.1.0
         version: 22.1.0
+      astro:
+        specifier: ^4.15.7
+        version: 4.15.7(@types/node@22.1.0)(rollup@4.22.0)(typescript@5.4.5)
       constructs:
         specifier: ^10.3.0
         version: 10.3.0
