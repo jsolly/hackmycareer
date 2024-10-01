@@ -8,5 +8,5 @@ export default defineConfig({
 	site: "https://hackmycareer.lol",
 	integrations: [tailwind()],
 	output: "server",
-	adapter: vercel(),
+	adapter: vercelServerless(),
 });
