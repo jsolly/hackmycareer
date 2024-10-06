@@ -1,7 +1,6 @@
 import { extractKeywordsFromResumeText } from "./utils/keywordExtractor.js";
 import {
 	generateSearchQuery,
-	generateQueryVariation,
 	generateLinkedInSearchUrl,
 } from "./utils/buildSearchQuery.js";
 
@@ -14,8 +13,6 @@ const excludeCompaniesTextarea = document.getElementById("exclude-companies");
 const queryOutput = document.getElementById("query-output");
 const loadingSpinner = document.getElementById("loading-spinner");
 const copyButton = document.getElementById("copy-button");
-const mixItUpButton = document.getElementById("mix-it-up-button");
-const resetButton = document.getElementById("reset-button");
 const linkedinSearchLink = document.getElementById("linkedin-search-link");
 
 let query = "";
@@ -79,19 +76,6 @@ copyButton.addEventListener("click", () => {
 			copyButton.textContent = "Copy to Clipboard";
 		}, 2000);
 	});
-});
-
-// Mix it Up Functionality
-mixItUpButton.addEventListener("click", () => {
-	const mixedQuery = generateQueryVariation(query);
-	queryOutput.textContent = mixedQuery;
-	updateLinkedInSearchLink(query);
-});
-
-// Reset Functionality
-resetButton.addEventListener("click", () => {
-	queryOutput.textContent = query;
-	updateLinkedInSearchLink(query);
 });
 
 function updateLinkedInSearchLink(query) {
