@@ -25,7 +25,7 @@
 		"html-minifier": "^4.0.0",
 		"jsdom": "^24.1.1",
 		"keyword-extractor": "^0.0.28",
-		"sharp": "^0.33.3",
+		"sharp": "^0.33.5",
 		"tailwindcss": "^3.4.14",
 		"unist-util-visit": "^5.0.0"
 	},
