@@ -61,8 +61,8 @@ importers:
         specifier: ^5.0.3
         version: 5.0.3(@types/node@22.1.0)(jiti@1.21.0)(rollup@4.28.1)(typescript@5.6.3)(yaml@2.5.0)
       constructs:
-        specifier: ^10.3.0
-        version: 10.3.0
+        specifier: ^10.4.2
+        version: 10.4.2
       husky:
         specifier: ^9.1.4
         version: 9.1.4
@@ -1218,9 +1218,8 @@ packages:
   console-control-strings@1.1.0:
     resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}
 
-  constructs@10.3.0:
-    resolution: {integrity: sha512-vbK8i3rIb/xwZxSpTjz3SagHn1qq9BChLEfy5Hf6fB3/2eFbrwt2n9kHwQcS0CPTRBesreeAcsJfMq2229FnbQ==}
-    engines: {node: '>= 16.14.0'}
+  constructs@10.4.2:
+    resolution: {integrity: sha512-wsNxBlAott2qg8Zv87q3eYZYgheb9lchtBfjHzzLHtXbttwSrHPs1NNQbBrmbb1YZvYg2+Vh0Dor76w4mFxJkA==}
 
   cookie@0.7.2:
     resolution: {integrity: sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w==}
@@ -4137,7 +4136,7 @@ snapshots:
 
   console-control-strings@1.1.0: {}
 
-  constructs@10.3.0: {}
+  constructs@10.4.2: {}
 
   cookie@0.7.2: {}
 
